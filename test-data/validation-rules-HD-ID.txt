@@ -1,0 +1,252 @@
+================================================================================
+  CIC Submission Data File - HD & ID Record Validation Rules
+  Based on MANUAL~1.PDF Version 1.6
+================================================================================
+
+================================================================================
+1. HD (HEADER) Validation Rules
+================================================================================
+
+HD1 - Record Type (X, M, len=2)
+  - Must be "HD"
+
+HD2 - Provider Code (X, M, len=8)
+  - Mandatory, max 8 characters
+  - Unique provider code assigned by CIC
+
+HD3 - File Reference Date (D, M, len=8)
+  - Mandatory, format DDMMYYYY
+  - Must be a valid calendar date
+  - Must be >= all other Reference Dates in the file
+
+HD4 - Version (X, M, len=12)
+  - Must be "1.0"
+
+HD5 - Submission Type (X, M, len=1)
+  - Mandatory, accepted values: 0 or 1
+  - 0=Standard periodical contribution, 1=Correction/History contribution
+
+HD6 - Provider Comments (X, NM, len=100)
+  - Not mandatory, max 100 characters
+
+================================================================================
+2. ID (INDIVIDUALS) Validation Rules
+================================================================================
+
+--- Basic Information ---
+
+ID1 - Record Type (X, M, len=2)
+  - Must be "ID"
+
+ID2 - Provider Code (X, M, len=8)
+  - Mandatory, max 8 characters
+
+ID3 - Branch Code (X, NM, len=5)
+  - Not mandatory, max 5 characters
+
+ID4 - Subject Reference Date (D, M, len=8)
+  - Mandatory, format DDMMYYYY
+  - Must not be greater than HD3 File Reference Date
+
+ID5 - Provider Subject No (X, M, len=38)
+  - Mandatory, max 38 characters
+  - Must uniquely identify a subject within the same file
+
+ID6 - Title (X, NM, len=2)
+  - Not mandatory
+  - Domain: 10(Mr),11(Ms),12(Miss),13(Mrs),14(Dr),15(Prof),16(Hon),17(Lady),18(Major),19(Sir),20(Madam),21(Rev)
+
+ID7 - First Name (X, M, len=70)
+  - Mandatory, max 70 characters
+
+ID8 - Last Name (X, M, len=70)
+  - Mandatory, max 70 characters
+
+ID9 - Middle Name (X, NM, len=70)
+  - Not mandatory, max 70 characters
+
+ID10 - Suffix (X, NM, len=40)
+  - Not mandatory, max 40 characters
+
+ID11 - Nickname (X, NM, len=40)
+  - Not mandatory, max 40 characters
+
+ID12 - Previous Last Name (X, NM, len=70)
+  - Not mandatory, max 70 characters
+
+ID13 - Gender (X, M, len=1)
+  - Mandatory
+  - Domain: M(Male), F(Female)
+
+ID14 - Date of Birth (D, M, len=8)
+  - Mandatory, format DDMMYYYY
+  - Age must be between 18 and 100 years
+  - Default values are not accepted
+
+ID15 - Place of Birth (X, NM, len=100)
+  - Not mandatory, max 100 characters
+
+ID16 - Country of Birth (X, NM, len=2)
+  - Not mandatory
+  - Domain: CountryDomain (ISO 2-letter country codes)
+
+ID17 - Nationality (X, NM, len=2)
+  - Not mandatory
+  - Domain: CountryDomain
+
+ID18 - Resident (X, NM, len=1)
+  - Not mandatory
+  - Domain: 0(No), 1(Yes)
+
+ID19 - Civil Status (X, NM, len=1)
+  - Not mandatory
+  - Domain: 1(Single),2(Married),3(Divorced/Separated),4(Widow)
+
+ID20 - Number of Dependants (N, NM, len=2)
+  - Not mandatory, integer only, no decimal, no comma, max 2 digits
+
+ID21 - Cars Owned (N, NM, len=3)
+  - Not mandatory, integer only, no decimal, no comma, max 3 digits
+
+--- Spouse Information ---
+
+ID22 - Spouse First Name (X, NM, len=70)
+ID23 - Spouse Last Name (X, NM, len=70)
+ID24 - Spouse Middle Name (X, NM, len=70)
+ID25 - (Future Use) (X, NM, len=70)
+
+--- Parent Information ---
+
+ID26 - Mother Maiden Full Name (X, NM, len=70)
+ID27 - (Future Use) (X, NM, len=70)
+ID28 - Father First Name (X, NM, len=70)
+ID29 - Father Last Name (X, NM, len=70)
+ID30 - Father Middle Name (X, NM, len=70)
+ID31 - Father Suffix (X, NM, len=40)
+
+--- Address 1 (Main Address, Mandatory) ---
+
+ID32 - Address 1: Address Type (X, M, len=2)
+  - Mandatory, must be "MI" (Main Address / Residence / Permanent)
+
+ID33 - Address 1: FullAddress (X, D, len=400)
+  - Conditionally mandatory: required if split address fields are not provided
+  - Cannot be filled together with split fields (if both filled, FullAddress is ignored)
+
+ID34 - Address 1: StreetNo (X, D, len=100)
+  - Non-MFI: Mandatory; MFI: Not mandatory
+  - Leave empty if FullAddress is provided
+
+ID35 - Address 1: PostalCode (X, NM, len=4)
+  - Not mandatory, max 4 characters
+
+ID36 - Address 1: Subdivision (X, D, len=100)
+  - Non-MFI: Not mandatory; MFI: Mandatory
+
+ID37 - Address 1: Barangay (X, NM, len=60)
+  - Not mandatory
+
+ID38 - Address 1: City (X, D, len=50)
+  - Conditionally mandatory: required if any split address field is filled
+
+ID39 - Address 1: Province (X, D, len=50)
+  - Conditionally mandatory: required if any split address field is filled
+
+ID40 - Address 1: Country (X, NM, len=2)
+  - Not mandatory
+  - Domain: CountryDomain
+
+ID41 - Address 1: House Owner/Lessee (X, NM, len=1)
+  - Not mandatory
+  - Domain: 1(Own),2(Rent),3(Lease),4(Other)
+
+ID42 - Address 1: Occupied Since (D, NM, len=8)
+  - Not mandatory, format DDMMYYYY
+
+--- Address 2 (Additional Address) ---
+
+ID43 - Address 2: Address Type (X, D, len=2)
+  - Non-MFI: Mandatory; MFI: Conditionally mandatory
+  - If provided, must be "AI" (Individual - Additional Address / Mailing)
+
+ID44~ID53 - Address 2 fields
+  - Rules similar to Address 1
+  - Non-MFI must submit two addresses
+
+--- Identification Codes (at least one TIN/SSS/GSIS required) ---
+
+ID54 - Identification 1: Type (X, D, len=2)
+  - Domain: 10(TIN),11(SSS),12(GSIS),13(Philhealth),14(Senior Citizen),15(UMID),16(SEC),17(DTI),18(CDA),19(CooperativeId)
+  - At least one Identification group (1/2/3) must be filled
+  - TIN is preferred; otherwise SSS or GSIS
+  - Type and Number must be filled as a pair
+
+ID55 - Identification 1: Number (X, D, len=20)
+  - Paired with ID54
+
+ID56/ID57 - Identification 2: Type/Number
+ID58/ID59 - Identification 3: Type/Number
+  - Same rules as above
+
+--- ID Documents (Optional) ---
+
+ID60 - ID 1: Type (X, D, len=2)
+  - Domain: 10(Driver's License)~39(SIRV)
+  - Type and Number must be filled as a pair
+
+ID61 - ID 1: Number (X, D, len=40)
+ID62 - ID 1: IssueDate (D, NM, len=8) - format DDMMYYYY
+ID63 - ID 1: IssueCountry (X, NM, len=2) - CountryDomain
+ID64 - ID 1: ExpiryDate (D, NM, len=8) - format DDMMYYYY
+ID65 - ID 1: Issued By (X, NM, len=250)
+
+ID66~ID71 - ID 2 fields (same rules as ID 1)
+ID72~ID77 - ID 3 fields (same rules as ID 1)
+
+--- Contact Information ---
+
+ID78 - Contact 1: Type (X, D, len=1)
+  - Domain: 1(Landline),2(Add Landline),3(Mobile),4(Add Mobile),5(Fax),6(Add Fax),7(Email),8(Add Email),9(Social Network)
+  - Non-MFI: at least one Contact group is mandatory
+  - Type and Value must be filled as a pair
+
+ID79 - Contact 1: Value (X, D, len=100)
+ID80/ID81 - Contact 2: Type/Value (same rules)
+
+--- Employment Information ---
+
+ID82 - Employment: Trade Name (X, NM, len=120)
+ID83 - Employment: TIN (X, NM, len=20)
+ID84 - Employment: Phone Number (X, NM, len=20)
+ID85 - Employment: PSIC (X, NM, len=5) - PSICDomain
+ID86 - Employment: GrossIncome (N, NM, len=15) - integer only, no comma, no decimal
+ID87 - Employment: Annual/Monthly (X, NM, len=1) - Domain: M(Monthly), Y(Annual)
+ID88 - Employment: Currency (X, NM, len=3) - CurrencyDomain
+ID89 - Employment: OccupationStatus (X, NM, len=1) - Domain: 1~9
+ID90 - Employment: DateHiredFrom (D, NM, len=8) - DDMMYYYY
+ID91 - Employment: DateHiredTo (D, NM, len=8) - DDMMYYYY
+ID92 - Employment: Occupation (X, NM, len=4) - PSOCDomain
+
+--- Sole Trader ---
+
+ID93~ID123 - Sole Trader related fields
+  - Includes: Trade Name, Address 1&2, Identification 1&2, Contact 1&2
+  - Address rules are similar to individual address rules
+  - If Sole Trader Identification is provided, at least one should be TIN
+
+================================================================================
+3. General Validation Rules
+================================================================================
+
+1.  Date format: All date fields must be DDMMYYYY (8 digits)
+2.  Number format: N-type fields must be integers, no commas, no decimals
+3.  Field delimiter: "|" (pipe character)
+4.  File encoding: UTF-8 without BOM
+5.  Field length: Must not exceed the defined maximum length
+6.  Mandatory fields: Fields marked M (Mandatory) must not be empty
+7.  Conditional fields: Fields marked D (Dependent) are mandatory based on conditions
+8.  Domain validation: Fields with domain tables must use values defined in the table
+9.  Paired validation: Type/Number fields must appear in pairs (fill one, must fill the other)
+10. Date logic: Subject Reference Date <= File Reference Date
+11. Age validation: Date of Birth must yield an age between 18 and 100
+12. Field count: HD line should have 5-6 fields, ID line should have 122-123 fields
