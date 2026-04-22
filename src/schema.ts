@@ -13,6 +13,8 @@ import {
   CURRENCY_DOMAIN,
   OCCUPATION_STATUS_DOMAIN,
   SUBMISSION_TYPE_DOMAIN,
+  PSIC_DIVISION_DOMAIN,
+  PSOC_SUB_MAJOR_DOMAIN,
 } from './domains.js';
 
 export const HD_SCHEMA: readonly FieldSpec[] = [
@@ -70,7 +72,7 @@ export const ID_SCHEMA: readonly FieldSpec[] = [
   { id: 'ID40', name: 'Address 1: Country', type: 'X', mandatory: 'NM', maxLength: 2, domain: COUNTRY_DOMAIN },
   { id: 'ID41', name: 'Address 1: House Owner/Lessee', type: 'X', mandatory: 'NM', maxLength: 1, domain: HOUSE_OWNER_DOMAIN },
   { id: 'ID42', name: 'Address 1: Occupied Since', type: 'D', mandatory: 'NM', maxLength: 8 },
-  { id: 'ID43', name: 'Address 2: Address Type', type: 'X', mandatory: 'D', maxLength: 2, fixedValue: 'AI' },
+  { id: 'ID43', name: 'Address 2: Address Type', type: 'X', mandatory: 'D', maxLength: 2 },
   { id: 'ID44', name: 'Address 2: FullAddress', type: 'X', mandatory: 'D', maxLength: 400 },
   { id: 'ID45', name: 'Address 2: StreetNo', type: 'X', mandatory: 'D', maxLength: 100 },
   { id: 'ID46', name: 'Address 2: PostalCode', type: 'X', mandatory: 'NM', maxLength: 4 },
@@ -112,14 +114,25 @@ export const ID_SCHEMA: readonly FieldSpec[] = [
   { id: 'ID82', name: 'Employment: Trade Name', type: 'X', mandatory: 'NM', maxLength: 120 },
   { id: 'ID83', name: 'Employment: TIN', type: 'X', mandatory: 'NM', maxLength: 20 },
   { id: 'ID84', name: 'Employment: Phone Number', type: 'X', mandatory: 'NM', maxLength: 20 },
-  { id: 'ID85', name: 'Employment: PSIC', type: 'X', mandatory: 'NM', maxLength: 5 },
+  // PSIC is a 5-digit numeric code from the Philippine Standard Industrial
+  // Classification (PSA, 2009 with 2019 updates). We validate that the
+  // first 2 digits match a real division (88 divisions). Higher-precision
+  // codes (group/class/sub-class) are accepted under a valid division.
+  { id: 'ID85', name: 'Employment: PSIC', type: 'N', mandatory: 'NM', maxLength: 5, domain: PSIC_DIVISION_DOMAIN, prefixLength: 2 },
   { id: 'ID86', name: 'Employment: GrossIncome', type: 'N', mandatory: 'NM', maxLength: 15 },
   { id: 'ID87', name: 'Employment: Annual/Monthly', type: 'X', mandatory: 'NM', maxLength: 1, domain: ANNUAL_MONTHLY_DOMAIN },
   { id: 'ID88', name: 'Employment: Currency', type: 'X', mandatory: 'NM', maxLength: 3, domain: CURRENCY_DOMAIN },
   { id: 'ID89', name: 'Employment: OccupationStatus', type: 'X', mandatory: 'NM', maxLength: 1, domain: OCCUPATION_STATUS_DOMAIN },
   { id: 'ID90', name: 'Employment: DateHiredFrom', type: 'D', mandatory: 'NM', maxLength: 8 },
   { id: 'ID91', name: 'Employment: DateHiredTo', type: 'D', mandatory: 'NM', maxLength: 8 },
-  { id: 'ID92', name: 'Employment: Occupation', type: 'X', mandatory: 'NM', maxLength: 4 },
+  // Occupation is a 4-digit numeric code from the Philippine Standard
+  // Occupational Classification (PSA, 2012 with 2022 updates). We enforce
+  // numeric format and length only. PSOC 2012 has 456 unit groups; its
+  // 2-digit sub-major groups broadly align with ISCO-08 but we have not
+  // confirmed a complete Philippine-specific sub-major list against an
+  // authoritative PSA publication, so we do not reject at the sub-major
+  // level to avoid false positives.
+  { id: 'ID92', name: 'Employment: Occupation', type: 'N', mandatory: 'NM', maxLength: 4 },
   { id: 'ID93', name: 'Sole Trader: Trade Name', type: 'X', mandatory: 'NM', maxLength: 120 },
   { id: 'ID94', name: 'Sole Trader Address 1: Address Type', type: 'X', mandatory: 'NM', maxLength: 2 },
   { id: 'ID95', name: 'Sole Trader Address 1: FullAddress', type: 'X', mandatory: 'NM', maxLength: 400 },

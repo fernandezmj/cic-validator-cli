@@ -52,7 +52,23 @@ function validateField(spec: FieldSpec, raw: string | undefined): ValidationErro
   if (spec.type === 'N' && !INTEGER_RE.test(value)) {
     errors.push({ field: spec.id, message: `${label}: must be integer (no commas, no decimals), got "${value}"` });
   }
-  if (spec.domain && !spec.domain.includes(value)) {
+  if (spec.domain && spec.prefixLength) {
+    // Hierarchical prefix check (e.g., PSIC division, PSOC sub-major group).
+    if (value.length < spec.prefixLength) {
+      errors.push({
+        field: spec.id,
+        message: `${label}: "${value}" is shorter than the ${spec.prefixLength}-digit classification prefix`,
+      });
+    } else {
+      const prefix = value.slice(0, spec.prefixLength);
+      if (!spec.domain.includes(prefix)) {
+        errors.push({
+          field: spec.id,
+          message: `${label}: prefix "${prefix}" is not a valid classification code`,
+        });
+      }
+    }
+  } else if (spec.domain && !spec.domain.includes(value)) {
     errors.push({ field: spec.id, message: `${label}: "${value}" is not in allowed domain` });
   }
   return errors;
@@ -125,6 +141,21 @@ function validateIDCrossField(fields: string[], fileRefDate: Date | null): Valid
     errors.push({ field: 'ID43', message: `ID43 (Address 2: Address Type): expected "AI" when provided, got "${addr2Type}"` });
   }
 
+  // Address 2: FullAddress (ID44) vs split fields (ID45, ID47..ID50)
+  // Only validate if Address 2 is being used (any of its fields is filled).
+  const addr2Full = get(44);
+  const addr2Split = [get(45), get(47), get(48), get(49), get(50)];
+  const hasAnyAddr2Split = addr2Split.some((s) => s !== '');
+  if (addr2Full && hasAnyAddr2Split) {
+    errors.push({
+      message: 'Address 2: FullAddress (ID44) and split fields are mutually exclusive',
+    });
+  }
+  if (hasAnyAddr2Split) {
+    if (get(49) === '') errors.push({ field: 'ID49', message: 'ID49 (Address 2: City) required when split address is used' });
+    if (get(50) === '') errors.push({ field: 'ID50', message: 'ID50 (Address 2: Province) required when split address is used' });
+  }
+
   // Paired fields: Identification Type/Number and ID Document Type/Number and Contact Type/Value
   const pairs: Array<[number, number, string]> = [
     [54, 55, 'Identification 1'],
@@ -150,14 +181,16 @@ function validateIDCrossField(fields: string[], fileRefDate: Date | null): Valid
     }
   }
 
-  // At least one Identification group (54/55, 56/57, 58/59) must be filled
+  // At least one Identification pair (ID54/55, ID56/57, or ID58/59) must be filled.
+  // Rules doc prefers TIN/SSS/GSIS (codes 10/11/12) but does not strictly require
+  // them — any valid identification type is accepted here.
   const hasAnyIdentification =
     (get(54) !== '' && get(55) !== '') ||
     (get(56) !== '' && get(57) !== '') ||
     (get(58) !== '' && get(59) !== '');
   if (!hasAnyIdentification) {
     errors.push({
-      message: 'At least one Identification group (TIN/SSS/GSIS, ID54–ID59) must be filled',
+      message: 'At least one Identification pair must be filled (ID54/55, ID56/57, or ID58/59)',
     });
   }
 
