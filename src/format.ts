@@ -1,9 +1,9 @@
 import type { FileReport, LineResult } from './types.js';
 
-const GREEN = '\x1b[32m';
-const RED = '\x1b[31m';
-const DIM = '\x1b[2m';
-const BOLD = '\x1b[1m';
+const GREEN = '\x1b[0;32m';
+const RED = '\x1b[0;31m';
+const DIM = '\x1b[0;2m';
+const BOLD = '\x1b[0;1m';
 const RESET = '\x1b[0m';
 
 function formatLine(result: LineResult, color: boolean): string {
@@ -21,6 +21,6 @@ export function formatReport(report: FileReport, options: { color?: boolean } = 
   lines.push('');
   lines.push(color ? `${DIM}${'─'.repeat(60)}${RESET}` : '─'.repeat(60));
   const summary = `${BOLD}Total:${RESET} ${report.totalLines}   ${GREEN}Passed:${RESET} ${report.passed}   ${RED}Failed:${RESET} ${report.failed}`;
-  lines.push(color ? summary : summary.replace(/\x1b\[\d+m/g, ''));
+  lines.push(color ? summary : summary.replace(/\x1b\[[\d;]+m/g, ''));
   return lines.join('\n');
 }
